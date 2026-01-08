@@ -31,7 +31,7 @@ A Windows desktop application for automatically backing up Minecraft singleplaye
 
 ### From Source
 ```bash
-git clone https://github.com/YOUR_USERNAME/MinecraftWorldBackup.git
+git clone https://github.com/M0uidev/MinecraftWorldBackup.git
 cd MinecraftWorldBackup
 dotnet run
 ```
