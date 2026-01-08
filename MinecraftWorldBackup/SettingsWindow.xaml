@@ -1,0 +1,136 @@
+<Window x:Class="MinecraftWorldBackup.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Settings" 
+        Height="380" Width="450"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        Background="#1a1a2e">
+    
+    <Window.Resources>
+        <SolidColorBrush x:Key="PrimaryBg" Color="#1a1a2e"/>
+        <SolidColorBrush x:Key="SecondaryBg" Color="#16213e"/>
+        <SolidColorBrush x:Key="AccentColor" Color="#0f3460"/>
+        <SolidColorBrush x:Key="HighlightColor" Color="#e94560"/>
+        <SolidColorBrush x:Key="TextPrimary" Color="#ffffff"/>
+        <SolidColorBrush x:Key="TextSecondary" Color="#a0a0a0"/>
+        
+        <Style TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
+            <Setter Property="FontSize" Value="13"/>
+        </Style>
+        
+        <Style TargetType="TextBox">
+            <Setter Property="Background" Value="{StaticResource SecondaryBg}"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource AccentColor}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="8,6"/>
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+        
+        <Style TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource AccentColor}"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="16,8"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" 
+                                Background="{TemplateBinding Background}" 
+                                CornerRadius="6"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="{StaticResource HighlightColor}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Header -->
+        <TextBlock Grid.Row="0" Text="⚙️ Settings" FontSize="18" FontWeight="Bold" Margin="0,0,0,16"/>
+        
+        <!-- Settings Form -->
+        <StackPanel Grid.Row="1">
+            <!-- ATLauncher Path -->
+            <TextBlock Text="ATLauncher Instances Path" Margin="0,0,0,4"/>
+            <Grid Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBox x:Name="InstancesPathTextBox" Grid.Column="0"/>
+                <Button Grid.Column="1" Content="Browse" Click="BrowseInstances_Click" Margin="8,0,0,0" Padding="12,6"/>
+            </Grid>
+            
+            <!-- Backup Path -->
+            <TextBlock Text="Backup Storage Path" Margin="0,0,0,4"/>
+            <Grid Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBox x:Name="BackupPathTextBox" Grid.Column="0"/>
+                <Button Grid.Column="1" Content="Browse" Click="BrowseBackup_Click" Margin="8,0,0,0" Padding="12,6"/>
+            </Grid>
+            
+            <!-- Polling Interval -->
+            <TextBlock Text="Scan Interval (minutes)" Margin="0,0,0,4"/>
+            <Grid Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="80"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBox x:Name="IntervalTextBox" Grid.Column="0"/>
+                <TextBlock Grid.Column="1" Text="How often to check for world changes" 
+                           Foreground="{StaticResource TextSecondary}" 
+                           FontSize="11" 
+                           VerticalAlignment="Center" 
+                           Margin="12,0,0,0"/>
+            </Grid>
+            
+            <!-- Max Backups -->
+            <TextBlock Text="Maximum Backups per World" Margin="0,0,0,4"/>
+            <Grid Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="80"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBox x:Name="MaxBackupsTextBox" Grid.Column="0"/>
+                <TextBlock Grid.Column="1" Text="Older backups will be deleted" 
+                           Foreground="{StaticResource TextSecondary}" 
+                           FontSize="11" 
+                           VerticalAlignment="Center" 
+                           Margin="12,0,0,0"/>
+            </Grid>
+            
+            <!-- Start Minimized -->
+            <CheckBox x:Name="StartMinimizedCheckBox" 
+                      Content="Start minimized to system tray" 
+                      Foreground="{StaticResource TextPrimary}"
+                      Margin="0,0,0,8"/>
+        </StackPanel>
+        
+        <!-- Buttons -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Content="Cancel" Click="Cancel_Click" Background="{StaticResource SecondaryBg}"/>
+            <Button Content="Save" Click="Save_Click" Margin="12,0,0,0"/>
+        </StackPanel>
+    </Grid>
+</Window>
