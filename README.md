@@ -1,4 +1,4 @@
-# Minecraft World Backup
+# Minecraft AT Launcher World Backup
 
 A Windows desktop application for automatically backing up Minecraft singleplayer worlds from ATLauncher instances.
 
