@@ -51,3 +51,9 @@ Desktop.ini
 # Application specific
 crash.log
 build_output.txt
+build.log
+app_log_copy.txt
+app_debug.txt
+
+# Publish output
+publish/

@@ -7,10 +7,25 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
+    <ApplicationIcon>Assets\Bedrock.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="fNbt" Version="1.0.0" />
+    <PackageReference Include="Google.Apis.Drive.v3" Version="1.73.0.3996" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\Bedrock.png" />
+    <Resource Include="Assets\Bedrock.ico" />
+    <Resource Include="Assets\Iron Pickaxe.png" />
+  </ItemGroup>
+
+  <!-- Copy ico to output for system tray icon -->
+  <ItemGroup>
+    <None Update="Assets\Bedrock.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

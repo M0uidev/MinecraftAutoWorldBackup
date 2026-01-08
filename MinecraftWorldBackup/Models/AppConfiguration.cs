@@ -54,6 +54,16 @@ public class AppConfiguration
     public bool StartMinimized { get; set; } = false;
 
     /// <summary>
+    /// Whether Google Drive sync is enabled
+    /// </summary>
+    public bool EnableGoogleDrive { get; set; } = false;
+
+    /// <summary>
+    /// Whether to also create local ZIP backups when using Google Drive
+    /// </summary>
+    public bool AlsoBackupLocally { get; set; } = true;
+
+    /// <summary>
     /// Loads configuration from disk, or creates default if not exists
     /// </summary>
     public static AppConfiguration Load()

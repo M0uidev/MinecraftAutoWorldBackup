@@ -40,9 +40,14 @@ public partial class MainWindow : Window
         _scheduler.ScanCompleted += Scheduler_ScanCompleted;
 
         // Setup system tray icon
+        var iconPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Bedrock.ico");
+        var trayIcon = System.IO.File.Exists(iconPath) 
+            ? new System.Drawing.Icon(iconPath) 
+            : System.Drawing.SystemIcons.Shield;
+            
         _notifyIcon = new System.Windows.Forms.NotifyIcon
         {
-            Icon = System.Drawing.SystemIcons.Shield,
+            Icon = trayIcon,
             Text = "Minecraft World Backup",
             Visible = false
         };
@@ -63,6 +68,10 @@ public partial class MainWindow : Window
 
         // Initial scan
         RefreshWorlds();
+        
+        // Initialize backup destination checkboxes from config
+        BackupLocalCheckBox.IsChecked = _config.AlsoBackupLocally;
+        BackupDriveCheckBox.IsChecked = _config.EnableGoogleDrive;
         
         // Start scheduler
         _scheduler.Start();
@@ -155,10 +164,47 @@ public partial class MainWindow : Window
             });
 
             _scanner.RefreshWorldTimestamp(world);
-            var result = await _backupEngine.CreateBackupAsync(world, progress);
+            
+            var localSuccess = true;
+            var driveSuccess = true;
+            
+            var backupLocal = BackupLocalCheckBox.IsChecked ?? true;
+            var backupDrive = BackupDriveCheckBox.IsChecked ?? false;
 
-            // Update last known timestamp if successful
-            if (result.Success)
+            // Local backup (if enabled)
+            if (backupLocal)
+            {
+                ProgressWorldName.Text = $"💾 Local: {world.Name}";
+                var result = await _backupEngine.CreateBackupAsync(world, progress);
+                localSuccess = result.Success;
+                
+                if (!localSuccess)
+                {
+                    MessageBox.Show($"Local backup failed: {result.ErrorMessage}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+
+            // Google Drive sync (if enabled)
+            if (backupDrive)
+            {
+                ProgressWorldName.Text = $"☁️ Google Drive: {world.Name}";
+                BackupProgressBar.Value = 0;
+                
+                var driveService = new Services.GoogleDriveService(_config);
+                if (await driveService.AuthenticateAsync())
+                {
+                    driveSuccess = await driveService.SyncWorldAsync(world, progress);
+                }
+                else
+                {
+                    driveSuccess = false;
+                    MessageBox.Show("Failed to authenticate with Google Drive. Check Settings.", "Drive Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+                driveService.Dispose();
+            }
+
+            // Update last known timestamp if any backup succeeded
+            if ((backupLocal && localSuccess) || (backupDrive && driveSuccess))
             {
                 _config.UpdateLastKnownTimestamp(world.UniqueId, world.LastPlayed);
             }
@@ -166,18 +212,18 @@ public partial class MainWindow : Window
             // Hide progress bar
             ProgressPanel.Visibility = Visibility.Collapsed;
 
-            button.Content = result.Success ? "✓" : "✗";
+            var allSuccess = (!backupLocal || localSuccess) && (!backupDrive || driveSuccess);
+            button.Content = allSuccess ? "✓" : "⚠";
             await Task.Delay(1500);
             button.Content = "Backup";
             button.IsEnabled = true;
 
-            if (result.Success)
+            if (allSuccess)
             {
-                ShowNotification("Backup Complete", $"Backed up {world.Name}");
-            }
-            else
-            {
-                MessageBox.Show($"Backup failed: {result.ErrorMessage}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                var locations = new List<string>();
+                if (backupLocal) locations.Add("Local");
+                if (backupDrive) locations.Add("Drive");
+                ShowNotification("Backup Complete", $"Backed up {world.Name} to {string.Join(" + ", locations)}");
             }
         }
     }
@@ -254,7 +300,23 @@ public partial class MainWindow : Window
         {
             _scheduler.UpdateTimerInterval();
             RefreshWorlds();
+            
+            // Sync checkboxes with config changes
+            BackupLocalCheckBox.IsChecked = _config.AlsoBackupLocally;
+            BackupDriveCheckBox.IsChecked = _config.EnableGoogleDrive;
         }
+    }
+
+    private void BackupDestination_Changed(object sender, RoutedEventArgs e)
+    {
+        // Skip if controls not yet initialized
+        if (_config == null || BackupLocalCheckBox == null || BackupDriveCheckBox == null)
+            return;
+            
+        // Save preferences to config when checkboxes change
+        _config.AlsoBackupLocally = BackupLocalCheckBox.IsChecked ?? true;
+        _config.EnableGoogleDrive = BackupDriveCheckBox.IsChecked ?? false;
+        _config.Save();
     }
 
     private void MinimizeToTray_Click(object sender, RoutedEventArgs e)
